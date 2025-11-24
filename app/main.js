@@ -30,8 +30,14 @@ try {
   if (!fs.existsSync(portableDataPath)) {
     fs.mkdirSync(portableDataPath, { recursive: true });
   }
-  // Test write access
-  fs.accessSync(portableDataPath, fs.constants.W_OK);
+  // Test write access by creating a temporary file
+  const testFile = path.join(portableDataPath, '.write-test');
+  fs.writeFileSync(testFile, '');
+  try {
+    fs.unlinkSync(testFile);
+  } catch (cleanupErr) {
+    // Ignore cleanup errors
+  }
   app.setPath('userData', portableDataPath);
 } catch (err) {
   console.warn('Cannot write to installation directory, falling back to default userData path:', err.message);
