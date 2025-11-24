@@ -2,7 +2,7 @@ import path from 'path'
 import fs from 'fs'
 import { app } from 'electron'
 import windowManager from './windowManager.js'
-import trayManager from'./trayManager.js'
+import trayManager from './trayManager.js'
 import shortcutManager from './shortcut/shortcutManager.js'
 import contextManager from "./context/contextManager.js"
 import AutoLaunch from "./utility/autoLaunch.js"
@@ -30,10 +30,8 @@ try {
   if (!fs.existsSync(portableDataPath)) {
     fs.mkdirSync(portableDataPath, { recursive: true });
   }
-  // Test write access with a temporary file
-  const testFile = path.join(portableDataPath, '.write-test');
-  fs.writeFileSync(testFile, '');
-  fs.unlinkSync(testFile);
+  // Test write access
+  fs.accessSync(portableDataPath, fs.constants.W_OK);
   app.setPath('userData', portableDataPath);
 } catch (err) {
   console.warn('Cannot write to installation directory, falling back to default userData path:', err.message);
