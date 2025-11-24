@@ -1,4 +1,5 @@
 import path from 'path'
+import fs from 'fs'
 import { app } from 'electron'
 import windowManager from './windowManager.js'
 import trayManager from'./trayManager.js'
@@ -23,7 +24,21 @@ app.commandLine.appendSwitch('disable-features', 'IsolateOrigins,site-per-proces
 const portableDataPath = process.env.PORTABLE_EXECUTABLE_DIR 
   ? path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'tuboshu-user-data')
   : path.join(path.dirname(app.getPath('exe')), 'tuboshu-user-data');
-app.setPath('userData', portableDataPath);
+
+// Test write permissions and fallback to default if needed
+try {
+  if (!fs.existsSync(portableDataPath)) {
+    fs.mkdirSync(portableDataPath, { recursive: true });
+  }
+  // Test write access with a temporary file
+  const testFile = path.join(portableDataPath, '.write-test');
+  fs.writeFileSync(testFile, '');
+  fs.unlinkSync(testFile);
+  app.setPath('userData', portableDataPath);
+} catch (err) {
+  console.warn('Cannot write to installation directory, falling back to default userData path:', err.message);
+  // If write fails, Electron will use default path (AppData on Windows)
+}
 
 app.isQuitting = false;
 app.isMac = (process.platform === 'darwin');
