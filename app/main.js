@@ -19,9 +19,11 @@ app.commandLine.appendSwitch('lang', 'zh-CN');
 app.commandLine.appendSwitch('disable-blink-features', 'AutomationControlled')
 app.commandLine.appendSwitch('disable-features', 'IsolateOrigins,site-per-process')
 
-if(process.env.PORTABLE_EXECUTABLE_DIR){
-  app.setPath('userData', path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'tuboshu-user-data'))
-}
+// Set userData path to installation directory for portable version
+const portableDataPath = process.env.PORTABLE_EXECUTABLE_DIR 
+  ? path.join(process.env.PORTABLE_EXECUTABLE_DIR, 'tuboshu-user-data')
+  : path.join(path.dirname(app.getPath('exe')), 'tuboshu-user-data');
+app.setPath('userData', portableDataPath);
 
 app.isQuitting = false;
 app.isMac = (process.platform === 'darwin');
